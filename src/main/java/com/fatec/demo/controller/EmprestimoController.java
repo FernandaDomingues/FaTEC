@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.fatec.demo.model.Aluno;
 import com.fatec.demo.model.AlunoRepository;
 import com.fatec.demo.model.Emprestimo;
 import com.fatec.demo.model.EmprestimoRepository;
@@ -49,7 +50,12 @@ public class EmprestimoController {
 		return modelAndView;
 	}
 	
-	
+	@GetMapping("/consulta")
+	public ModelAndView listar() {
+		ModelAndView modelAndView = new ModelAndView("ConsultarEmprestimo");
+		modelAndView.addObject("emprestimos", emprestimoRepository.findAll());
+		return modelAndView;
+	}
 
 	@PostMapping("/save")
 	public ModelAndView save(@Valid Emprestimo emprestimo, BindingResult result) {
@@ -58,9 +64,12 @@ public class EmprestimoController {
 			return new ModelAndView("RegistrarEmprestimo");
 		}
 		try {
-			Emprestimo jaExiste = null;
-			jaExiste = emprestimoRepository.findByISBN(emprestimo.getIsbn());
-			if (jaExiste == null) {
+			Livro livro = null;
+			Aluno aluno = null;
+			livro = livroRepository.findByIsbn(emprestimo.getIsbn());
+			aluno = alunoRepository.findByRa(emprestimo.getRa());
+			if (livro != null && aluno != null) {
+				emprestimo.setDataEmprestimo();
 				emprestimoRepository.save(emprestimo);
 				modelAndView = new ModelAndView("ConsultarEmprestimo");
 				modelAndView.addObject("emprestimos", emprestimoRepository.findAll());
